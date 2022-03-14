@@ -1,3 +1,5 @@
+import 'dotenv/config';
+
 if (process.env.NODE_ENV !== 'integration') {
   jest.mock('ioredis', () => jest.requireActual('ioredis-mock/jest'));
 }

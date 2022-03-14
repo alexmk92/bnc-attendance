@@ -13,7 +13,10 @@ afterAll(async () => {
 });
 
 it(`allows us to record an early tick`, async () => {
-  expect(raid.name).toContain('mistmoore');
+  const onTimeTick = await recordTick(raid.id, ['karadin']);
+  expect(onTimeTick.tick).toEqual(0);
+  const firstTick = await recordTick(raid.id, ['karadin']);
+  expect(firstTick.tick).toEqual(1);
 });
 
 it(`allows us to record a final tick`, async () => {
