@@ -26,7 +26,10 @@ jobs:
         run: docker build -f Dockerfile.dev -t bnc-attendance:test .
 
       - name: Run tests
-        run: CI=docker run -d bnc-attendance:test yarn test --detectOpenHandles
+        run: docker run -d bnc-attendance:test yarn test --detectOpenHandles
+
+      - name: CI resume
+        run: echo $?
   deploy:
     name: Deploy app
     # needs: test
