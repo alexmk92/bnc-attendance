@@ -1,12 +1,13 @@
-import { getConnection } from '../../util/db';
-import { log } from '../../logger';
+import { getConnection } from '@/util/db';
+import { log } from '@/logger';
 
 /**
  * Given a list of players, record their attendance each time the player
  * list updates.
  */
 export default async (raidId: string, playerNames: string[]) => {
-  const raid = await getConnection().from('raid').where('id', raidId).first();
+  const knex = await getConnection();
+  const raid = await knex.from('raid').where('id', raidId).first();
   if (!raid) {
     throw new Error(`Raid ${raidId} not found`);
   }
@@ -27,7 +28,7 @@ export default async (raidId: string, playerNames: string[]) => {
     });
 
   if (playersToRecord.length) {
-    const rows = await getConnection()
+    const rows = await knex
       .insert(playersToRecord)
       .into('player_raid')
       .onConflict(['player_id', 'raid_id', 'raid_hour'])
@@ -41,7 +42,8 @@ export default async (raidId: string, playerNames: string[]) => {
 };
 
 const getTotalTicks = async (raidId: string): Promise<number> => {
-  const res = await getConnection()
+  const knex = await getConnection();
+  const res = await knex
     .countDistinct({ ticks: 'raid_hour' })
     .from('player_raid')
     .where('raid_id', raidId);

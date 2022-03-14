@@ -1,7 +1,7 @@
 import { Knex } from 'knex';
-import { log } from '../../logger';
-import { getConnection } from '../../util/db';
-// import { getSheets } from "../../util/googleApi";
+import { log } from '@/logger';
+import { getConnection } from '@/util/db';
+// import { getSheets } from "@/util/googleApi";
 
 type Attendance =
   | 'attendance_life'
