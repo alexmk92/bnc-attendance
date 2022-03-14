@@ -22,8 +22,8 @@ it(`will allow multiple raids to be created on the same day if a new split id is
   expect(raid.split).toEqual(1);
   expect(raid.name).toContain('Mistmoore');
 
-  const raid2 = await addRaid('Mistmoore', 2);
+  const raid2 = await addRaid('Mistmoores', 2);
   expect(raid2.split).toEqual(2);
-  expect(raid2.name).toContain('Mistmoore');
+  expect(raid2.name).toContain('Mistmoores');
   expect(raid2.id).not.toEqual(raid.id);
 });
