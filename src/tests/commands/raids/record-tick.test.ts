@@ -1,5 +1,8 @@
 import recordTick from '@/commands/raids/record-tick';
+import addPlayer from '@/commands/roster/add';
 import addRaid from '@/commands/raids/add';
+import fetchPlayer from '@/commands/roster/fetch';
+import calculateAttendance from '@/commands/raids/calculate-attendance';
 import { getConnection } from '@/util/db';
 
 let raid: Raid;
@@ -31,4 +34,24 @@ it(`won't allow us to record another tick within the same hour`, async () => {
   expect(firstTick.tick).toEqual(1);
   const additionalTick = await recordTick(raid.id, ['karadin']);
   expect(additionalTick.tick).toEqual(firstTick.tick);
+});
+
+it(`will calculate the last 30, 60, 90 days of attendance for each player`, async () => {
+  const players = await addPlayer([
+    { name: 'tankpotato', class: 'warrior', level: 65 },
+    { name: 'nerduun', class: 'warrior', level: 65 },
+  ]);
+
+  const raid = await addRaid('Citadel of Anguish', 11);
+  await recordTick(raid.id, ['tankpotato']);
+  await recordTick(raid.id, ['tankpotato']);
+  await recordTick(raid.id, ['tankpotato', 'nerduun'], true);
+
+  const tankpotato = (await fetchPlayer(players[0].id)).data as Player;
+  const nerduun = (await fetchPlayer(players[1].id)).data as Player;
+
+  await calculateAttendance();
+
+  expect(tankpotato.attendance_30).toBe(100);
+  expect(Math.floor(nerduun.attendance_30!)).toBe(33);
 });

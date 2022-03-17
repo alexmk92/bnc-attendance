@@ -38,14 +38,13 @@ export default async (
     });
 
   if (playersToRecord.length) {
-    const rows = await knex
+    await knex
       .insert(playersToRecord)
       .into('player_raid')
       .onConflict(['player_id', 'raid_id', 'raid_hour'])
       .merge({ updated_at: new Date() });
 
-    log.debug(rows);
-    log.info('Recorded attendance for ' + rows.length + ' players');
+    log.info('Recorded attendance for ' + playersToRecord.length + ' players');
   }
 
   const recordedTicks = playersToRecord.length

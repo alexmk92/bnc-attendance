@@ -3,7 +3,7 @@ import { getConnection } from '@/util/db';
 export default async (
   id?: number,
   mainsOnly?: boolean
-): Promise<{ data: {}; totalRows: number; id?: number }> => {
+): Promise<{ data: Player | Player[]; totalRows: number; id?: number }> => {
   const knex = await getConnection();
   let players = [];
   if (id) {
