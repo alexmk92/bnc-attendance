@@ -1,15 +1,18 @@
-import { __db__ } from "../constants";
-import knex, { Knex } from "knex";
+import { __db__ } from '@/constants';
+import knex, { Knex } from 'knex';
 
 let connection: Knex<any, unknown[]> | null = null;
 
-export const getConnection = () => {
+export const getConnection = async () => {
   if (!connection) {
-    console.log("Spawning new connection");
     connection = knex({
-      client: "pg",
-      connection: __db__,
-      debug: __db__.debug,
+      client: 'pg',
+      version: '21.2.4',
+      connection: __db__ as any,
+      debug: __db__.debug as any,
+      migrations: {
+        directory: '@/migrations',
+      },
     });
   }
 

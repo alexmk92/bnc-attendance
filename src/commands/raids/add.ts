@@ -1,22 +1,39 @@
-import { getConnection } from "../../util/db";
+import { getConnection } from '@/util/db';
 
-export default async (
-  raidName: string
-): Promise<{ id: number; name: string; date: string }> => {
+export default async (raidName: string, split?: number): Promise<Raid> => {
   const date = getFormattedDate(new Date());
+  if (!split) {
+    split = 1;
+  }
 
-  const raids = await getConnection()
-    .insert({
-      name: raidName.toLowerCase(),
-      created_at: date,
-      updated_at: date,
-    })
-    .into("raid")
-    .onConflict(["created_at"])
-    .merge({ updated_at: new Date(), name: raidName })
-    .returning("*");
+  const knex = await getConnection();
 
-  return { id: raids[0]?.id, name: `${raidName}@${date}`, date };
+  let raid = await knex
+    .select('*')
+    .from('raid')
+    .where('created_at', date)
+    .andWhere('split', split)
+    .first();
+
+  if (raid) {
+    const params = { updated_at: new Date(), name: raidName.toLowerCase() };
+    await knex('raid').where('id', raid.id).update(params);
+    raid = { ...raid, ...params };
+  } else {
+    const raids = await knex
+      .insert({
+        name: raidName.toLowerCase(),
+        split: split,
+        created_at: date,
+        updated_at: date,
+      })
+      .into('raid')
+      .returning('*');
+
+    raid = raids[0];
+  }
+
+  return raid;
 };
 
 /**
@@ -30,10 +47,10 @@ const getFormattedDate = (date: Date) => {
   var year = date.getFullYear();
 
   var month = (1 + date.getMonth()).toString();
-  month = month.length > 1 ? month : "0" + month;
+  month = month.length > 1 ? month : '0' + month;
 
   var day = date.getDate().toString();
-  day = day.length > 1 ? day : "0" + day;
+  day = day.length > 1 ? day : '0' + day;
 
-  return month + "/" + day + "/" + year;
+  return month + '/' + day + '/' + year;
 };
