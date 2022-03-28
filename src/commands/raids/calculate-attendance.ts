@@ -12,7 +12,7 @@ type Attendance =
 interface AttendanceDatum {
   player_id: number;
   player_name: string;
-  attendance: string; // returned from db as string, we parse to float
+  attendance: number; // returned from db as string, we parse to float
 }
 
 export default async () => {
@@ -42,7 +42,7 @@ export default async () => {
       }
 
       if (player_id) {
-        playerAttendance[player_id][name] = parseFloat(attendance);
+        playerAttendance[player_id][name] = parseFloat(`${attendance}`);
       }
     });
   });
@@ -116,14 +116,16 @@ const allTime = async (
 
   rows.forEach((row: AttendanceDatum) => {
     if (aggregatedRows?.[row?.player_id]) {
-      aggregatedRows[row.player_id].attendance += row.attendance;
+      aggregatedRows[row.player_id].attendance = parseFloat(
+        `${row.attendance}`
+      );
     } else {
+      row.attendance = parseFloat(`${row.attendance}`);
       aggregatedRows[row.player_id] = row;
     }
   });
-  console.log(rows);
 
-  return Object.values(rows);
+  return Object.values(aggregatedRows);
 };
 
 const daysInRange = async (
@@ -157,14 +159,16 @@ const daysInRange = async (
 
   rows.forEach((row: AttendanceDatum) => {
     if (aggregatedRows?.[row?.player_id]) {
-      aggregatedRows[row.player_id].attendance += row.attendance;
+      aggregatedRows[row.player_id].attendance += parseFloat(
+        `${row.attendance}`
+      );
     } else {
+      row.attendance = parseFloat(`${row.attendance}`);
       aggregatedRows[row.player_id] = row;
     }
   });
-  console.log(rows);
 
-  return Object.values(rows);
+  return Object.values(aggregatedRows);
 };
 
 const updateSheet = async (playerAttendance: (string | number)[][]) => {
